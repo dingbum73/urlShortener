@@ -1,6 +1,7 @@
 const express = require('express')
 const exphbs = require('express-handlebars')
 const mongoose = require('mongoose')
+const urlShortener = require('./utility/shortener')
 
 const app = express()
 const port = 3000
@@ -31,6 +32,8 @@ app.set('view engine', 'hbs')
 app.get('/', (req, res) => {
   res.render('index')
 })
+
+// app.post('/',())
 
 // Start and listen the server
 app.listen(port, () => {
