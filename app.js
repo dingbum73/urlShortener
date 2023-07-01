@@ -23,12 +23,16 @@ db.on('error', () => { console.log('DB error') })
 db.once('open', () => { console.log('DB connected!') })
 
 
+// set template and engine
+app.engine('hbs', exphbs.create({ defaultLayout: 'main', extname: 'hbs' }).engine)
+app.set('view engine', 'hbs')
+
 
 app.get('/', (req, res) => {
-  res.send('URL START')
+  res.render('index')
 })
 
 // Start and listen the server
 app.listen(port, () => {
-  console.log(`It's running on http://${port}`)
+  console.log(`It's running on http://localhost:${port}`)
 })
