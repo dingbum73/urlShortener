@@ -39,8 +39,9 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
-  const inputUrl = req.body.inputUrl.trim(" ")
+  const inputUrl = req.body.inputUrl.trim()
   const shortlUrl = urlShortener(inputUrl)
+  console.log(inputUrl)
   // 如果不是使用者輸入的網址 不是http開頭就return
   // 如果已經是產出的短網址也return
   if (!inputUrl.startsWith('http') || inputUrl.includes('localhost:3000')) {
@@ -68,16 +69,6 @@ app.get('/:shortlUrl', (req, res) => {
     .lean()
     .then((url) => { res.redirect(url.originalUrl) })
     .catch(error => { console.log(error) })
-})
-
-
-app.get('/', (req, res) => {
-  const inputUrl = req.body.inputUrl.trim(" ")
-  // 如果不是使用者輸入的網址 不是http開頭就return
-  if (inputUrl.substr(0, 4) !== 'http') {
-    res.render('index', { inputUrl })
-    return
-  }
 })
 
 
