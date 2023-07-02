@@ -1,9 +1,9 @@
 const express = require('express')
 const exphbs = require('express-handlebars')
 const mongoose = require('mongoose')
-const urlShortener = require('./utility/shortener')
 const bodyParsr = require('body-parser')
-const axios = require('axios')
+const urlShortener = require('./utility/shortener')
+const Urls = require('./models/urls')
 
 
 const app = express()
@@ -39,15 +39,20 @@ app.get('/', (req, res) => {
 })
 
 app.post('/', (req, res) => {
-  const inputUrl = req.body.inputUrl
+  const inputUrl = req.body.inputUrl.trim(" ")
   const shortlUrl = urlShortener(inputUrl)
   // 如果不是使用者輸入的網址 不是http開頭就return
   if (inputUrl.substr(0, 4) !== 'http') {
     res.render('index', { inputUrl })
+    return
   }
-  else {
+  Urls.create({
+    originalUrl: inputUrl,
+    shortenerUrl: shortlUrl
+  }).then(() => {
     res.render('show', { shortlUrl })
-  }
+  }).catch(error => { console.log(error) })
+
 })
 
 
