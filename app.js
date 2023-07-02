@@ -42,24 +42,42 @@ app.post('/', (req, res) => {
   const inputUrl = req.body.inputUrl.trim(" ")
   const shortlUrl = urlShortener(inputUrl)
   // 如果不是使用者輸入的網址 不是http開頭就return
+  // 如果已經是產出的短網址也return
+  if (!inputUrl.startsWith('http') || inputUrl.includes('localhost:3000')) {
+    return res.render('index', { inputUrl })
+  } else if (Urls.findOne({ originalUrl: inputUrl }).length !== 0) {
+    // 先查看是否有相同網址
+    Urls.findOne({ originalUrl: inputUrl })
+      .lean()
+      .then((url) => { res.render('show', { shortlUrl: url.shortenerUrl }) })
+      .catch(error => { console.log(error) })
+  } else {
+    Urls.create({
+      originalUrl: inputUrl,
+      shortenerUrl: shortlUrl
+    }).then(() => {
+      res.render('show', { shortlUrl })
+    }).catch(error => { console.log(error) })
+  }
+})
+
+// 用短網址搜尋，並使用重新導向原本網址
+app.get('/:shortlUrl', (req, res) => {
+  const shortlUrl = req.params.shortlUrl
+  return Urls.findOne({ shortenerUrl: shortlUrl })
+    .lean()
+    .then((url) => { res.redirect(url.originalUrl) })
+    .catch(error => { console.log(error) })
+})
+
+
+app.get('/', (req, res) => {
+  const inputUrl = req.body.inputUrl.trim(" ")
+  // 如果不是使用者輸入的網址 不是http開頭就return
   if (inputUrl.substr(0, 4) !== 'http') {
     res.render('index', { inputUrl })
     return
   }
-  Urls.create({
-    originalUrl: inputUrl,
-    shortenerUrl: shortlUrl
-  }).then(() => {
-    res.render('show', { shortlUrl })
-  }).catch(error => { console.log(error) })
-})
-
-app.get('/:shortlUrl', (req, res) => {
-  const shortlUrl = req.params.shortlUrl
-  return Urls.find({ shortenerUrl: shortlUrl })
-    .lean()
-    .then((url) => { res.redirect(url[0].originalUrl) })
-    .catch(error => { console.log(error) })
 })
 
 
