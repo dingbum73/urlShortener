@@ -41,7 +41,13 @@ app.get('/', (req, res) => {
 app.post('/', (req, res) => {
   const inputUrl = req.body.inputUrl
   const shortlUrl = urlShortener(inputUrl)
-  res.render('show', { shortlUrl })
+  // 如果不是使用者輸入的網址 不是http開頭就return
+  if (inputUrl.substr(0, 4) !== 'http') {
+    res.render('index', { inputUrl })
+  }
+  else {
+    res.render('show', { shortlUrl })
+  }
 })
 
 
