@@ -52,7 +52,14 @@ app.post('/', (req, res) => {
   }).then(() => {
     res.render('show', { shortlUrl })
   }).catch(error => { console.log(error) })
+})
 
+app.get('/:shortlUrl', (req, res) => {
+  const shortlUrl = req.params.shortlUrl
+  return Urls.find({ shortenerUrl: shortlUrl })
+    .lean()
+    .then((url) => { res.redirect(url[0].originalUrl) })
+    .catch(error => { console.log(error) })
 })
 
 
