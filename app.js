@@ -2,8 +2,7 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const mongoose = require('mongoose')
 const bodyParsr = require('body-parser')
-const urlShortener = require('./utility/shortener')
-const Urls = require('./models/urls')
+const routes = require('./routes/index')
 
 
 const app = express()
@@ -34,51 +33,12 @@ app.set('view engine', 'hbs')
 // setting body-parser
 app.use(bodyParsr.urlencoded({ extended: true }))
 
-app.get('/', (req, res) => {
-  res.render('index')
-})
-
-app.post('/', (req, res) => {
-  const inputUrl = req.body.inputUrl.trim()
-  const shortlUrl = urlShortener(inputUrl)
-  console.log(inputUrl)
-  // 如果不是使用者輸入的網址 不是http開頭就return
-  // 如果已經是產出的短網址也return
-  if (!inputUrl.startsWith('http') || inputUrl.includes('localhost:3000')) {
-    return res.render('index', { inputUrl })
-  } else if (Urls.findOne({ originalUrl: inputUrl }).length !== 0) {
-    // 先查看是否有相同網址
-    Urls.findOne({ originalUrl: inputUrl })
-      .lean()
-      .then((url) => { res.render('show', { shortlUrl: url.shortenerUrl }) })
-      .catch(error => { console.log(error) })
-  } else {
-    Urls.create({
-      originalUrl: inputUrl,
-      shortenerUrl: shortlUrl
-    }).then(() => {
-      res.render('show', { shortlUrl })
-    }).catch(error => { console.log(error) })
-  }
-})
-
-// 用短網址搜尋，並使用重新導向原本網址
-app.get('/:shortlUrl', (req, res) => {
-  const shortlUrl = req.params.shortlUrl
-  return Urls.findOne({ shortenerUrl: shortlUrl })
-    .lean()
-    .then((url) => { res.redirect(url.originalUrl) })
-    .catch(error => { console.log(error) })
-})
-
+// setting routes
+app.use(routes)
 
 // Start and listen the server
 app.listen(port, () => {
   console.log(`It's running on http://localhost:${port}`)
 
 })
-
-
-
-
 
