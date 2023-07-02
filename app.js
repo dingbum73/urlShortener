@@ -2,6 +2,9 @@ const express = require('express')
 const exphbs = require('express-handlebars')
 const mongoose = require('mongoose')
 const urlShortener = require('./utility/shortener')
+const bodyParsr = require('body-parser')
+const axios = require('axios')
+
 
 const app = express()
 const port = 3000
@@ -28,14 +31,27 @@ db.once('open', () => { console.log('DB connected!') })
 app.engine('hbs', exphbs.create({ defaultLayout: 'main', extname: 'hbs' }).engine)
 app.set('view engine', 'hbs')
 
+// setting body-parser
+app.use(bodyParsr.urlencoded({ extended: true }))
 
 app.get('/', (req, res) => {
   res.render('index')
 })
 
-// app.post('/',())
+app.post('/', (req, res) => {
+  const inputUrl = req.body.inputUrl
+  const shortlUrl = urlShortener(inputUrl)
+  res.render('show', { shortlUrl })
+})
+
 
 // Start and listen the server
 app.listen(port, () => {
   console.log(`It's running on http://localhost:${port}`)
+
 })
+
+
+
+
+
